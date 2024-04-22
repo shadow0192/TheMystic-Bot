@@ -1,8 +1,15 @@
 import util from 'util';
 import path from 'path';
+
+
 const user = (a) => '@' + a.split('@')[0];
 function handler(m, {groupMetadata, command, conn, text, usedPrefix}) {
-  if (!text) throw `Ejemplo de uso:\n.top *texto*`;
+  const datas = global
+  const idioma = datas.db.data.users[m.sender].language
+  const _translate = JSON.parse(fs.readFileSync(`./language/${idioma}.json`))
+  const tradutor = _translate.plugins.fun_top
+
+  if (!text) throw `${tradutor.texto1}`;
   const ps = groupMetadata.participants.map((v) => v.id);
   const a = ps.getRandom();
   const b = ps.getRandom();

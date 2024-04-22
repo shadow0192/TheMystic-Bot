@@ -1,11 +1,17 @@
 import { execSync } from 'child_process';
 
+
 const handler = async (m, { conn, text }) => {
+  const datas = global
+  const idioma = datas.db.data.users[m.sender].language
+  const _translate = JSON.parse(fs.readFileSync(`./language/${idioma}.json`))
+  const tradutor = _translate.plugins.propietario_actualizar
+
   try {
           const stdout = execSync('git pull' + (m.fromMe && text ? ' ' + text : ''));
           let messager = stdout.toString()
-          if (messager.includes('Already up to date.')) messager = '*[❗] No hay nada por actualizar, todo esta actualizado a como esta en el repositorio oficial.*'
-          if (messager.includes('Updating')) messager = '*[❗] Actualizaciones realizadas, cambios hechos:*\n\n' + stdout.toString()
+          if (messager.includes('Already up to date.')) messager = tradutor.texto1
+          if (messager.includes('Updating')) messager = tradutor.texto2 + stdout.toString()
           conn.reply(m.chat, messager, m);
   } catch {      
  try {    
@@ -19,17 +25,17 @@ const handler = async (m, { conn, text }) => {
             if (line.includes('.npm/') || line.includes('.cache/') || line.includes('tmp/') || line.includes('MysticSession/') || line.includes('npm-debug.log')) {
               return null;
             }
-            return '*◉ ' + line.slice(3) + '*';
+            return '*→ ' + line.slice(3) + '*';
           })
           .filter(Boolean);
         if (conflictedFiles.length > 0) {
-          const errorMessage = `*[❗] Se han hecho cambios en los archivos del Bot en local y causa conflictos al actualizar ya que igual se han modificado en el repositorio oficial.*\n\n*—◉ Archivos con conflicto:*\n${conflictedFiles.join('\n')}\n\n*—◉ Si deseas actualizar el Bot, deberás reinstalar el Bot o hacer las actualizaciones manualmente.*`;
+          const errorMessage = `${tradutor.texto3} \n\n${conflictedFiles.join('\n')}.*`;
           await conn.reply(m.chat, errorMessage, m);  
         }
       }
   } catch (error) {
     console.error(error);
-    let errorMessage2 = '*[❗] Ha ocurrido un error al ejecutar el comando.*';
+    let errorMessage2 = tradutor.texto4;
     if (error.message) {
       errorMessage2 += '\n*- Mensaje de error:* ' + error.message;
     }
@@ -37,8 +43,6 @@ const handler = async (m, { conn, text }) => {
   }
  }
 };
-handler.help = ['update'];
-handler.tags = ['owner'];
-handler.command = /^(update|actualizar)$/i;
+handler.command = /^(update|actualizar|gitpull)$/i;
 handler.rowner = true;
 export default handler;

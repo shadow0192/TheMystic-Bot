@@ -1,4 +1,6 @@
 import fetch from 'node-fetch';
+
+
 let data;
 let buff;
 let mimeType;
@@ -6,13 +8,18 @@ let fileName;
 let apiUrl;
 let enviando = false;
 const handler = async (m, { command, usedPrefix, conn, text }) => {
-  if (!text) throw `*[❗] Nombre de la canción/video faltante, por favor ingrese el comando más el nombre, título o link de alguna canción o video de YouTube.*\n\n*—◉ Ejemplo 1:*\n*${usedPrefix + command}* Good Feeling - Flo Rida\n*—◉ Ejemplo 2:*\n*${usedPrefix + command}* https://youtu.be/JLWRZ8eWyZo?si=EmeS9fJvS_OkDk7p`;
+  const datas = global
+  const idioma = datas.db.data.users[m.sender].language
+  const _translate = JSON.parse(fs.readFileSync(`./language/${idioma}.json`))
+  const tradutor = _translate.plugins.descargas_play_v2
+
+  if (!text) throw `${tradutor.texto1[0]} _${usedPrefix + command} ${tradutor.texto1[1]} _${usedPrefix + command} https://youtu.be/JLWRZ8eWyZo?si=EmeS9fJvS_OkDk7p_`;
 if (enviando) return;
     enviando = true
   try {
     const apiUrls = [
-      `https://api-brunosobrino.zipponodes.xyz/api/ytplay?text=${text}`,
-      `https://api-brunosobrino.onrender.com/api/ytplay?text=${text}`
+      `https://api.cafirexos.com/api/ytplay?text=${text}`,
+      `https://api-brunosobrino.onrender.com/api/ytplay?text=${text}`      
     ];
 
     for (const url of apiUrls) {
@@ -27,41 +34,41 @@ if (enviando) return;
 
     if (!data.resultado || !data.resultado.url) {
       enviando = false;
-      throw `*[❗] No se pudo obtener la URL del video/canción.*`;
+      throw `${tradutor.texto2}`;
     } else {
-      try {
-        if (command === 'play.1') {
-              apiUrl = `https://api-brunosobrino.zipponodes.xyz/api/v1/ytmp3?url=${data.resultado.url}`;
+      try {      
+        if (command === 'play.1') { // play.1 con CFROS API v1 ytmp3
+              apiUrl = `https://api.cafirexos.com/api/v1/ytmp3?url=${data.resultado.url}`;
               mimeType = 'audio/mpeg';
               fileName = 'error.mp3';
-              buff = await conn.getFile(apiUrl);
-            } else if (command === 'play.2') {
-              apiUrl = `https://api-brunosobrino.zipponodes.xyz/api/v1/ytmp4?url=${data.resultado.url}`;
+              buff = await conn.getFile(apiUrl);          
+            } else if (command === 'play.2') { // play.2 con CFROS API v1 ytmp4
+              apiUrl = `https://api.cafirexos.com/api/v1/ytmp4?url=${data.resultado.url}`;
               mimeType = 'video/mp4';
               fileName = 'error.mp4';
-              buff = await conn.getFile(apiUrl);
+              buff = await conn.getFile(apiUrl);        
         }
-      } catch {
+      } catch {        
           try {
-            if (command === 'play.1') {
-              apiUrl = `https://api-brunosobrino.onrender.com/api/v1/ytmp3?url=${data.resultado.url}`;
+            if (command === 'play.1') { // play.1 con CFROS API v2 ytmp3
+              apiUrl = `https://api.cafirexos.com/api/v2/ytmp3?url=${data.resultado.url}`;
               mimeType = 'audio/mpeg';
               fileName = 'error.mp3';
-              buff = await conn.getFile(apiUrl);
-            } else if (command === 'play.2') {
-              apiUrl = `https://api-brunosobrino.onrender.com/api/v1/ytmp4?url=${data.resultado.url}`;
+              buff = await conn.getFile(apiUrl);              
+            } else if (command === 'play.2') { // play.2 con CFROS API v2 ytmp4
+              apiUrl = `https://api.cafirexos.com/api/v2/ytmp4?url=${data.resultado.url}`;
               mimeType = 'video/mp4';
               fileName = 'error.mp4';
-              buff = await conn.getFile(apiUrl);
+              buff = await conn.getFile(apiUrl);              
             }
           } catch {
             enviando = false;
-            throw `*[❗] Error al descargar el video/canción desde las APIs disponibles.`;
+            throw `${tradutor.texto3}`;
           }
        }
     }
 
-    const dataMessage = `*=> Título:* ${data.resultado.title}\n*=> Canal:* ${data.resultado.channel}\n*=> URL:* ${data.resultado.url}\n*=> Publicado:* ${data.resultado.publicDate}`;
+    const dataMessage = `${tradutor.texto4[0]} ${data.resultado.title}\n${tradutor.texto4[1]} ${data.resultado.publicDate}\n${tradutor.texto4[2]} ${data.resultado.channel}\n${tradutor.texto4[3]} ${data.resultado.url}`;
     await conn.sendMessage(m.chat, { text: dataMessage }, { quoted: m });
 
     if (buff) {
@@ -69,18 +76,17 @@ if (enviando) return;
       enviando = false;
     } else {
       enviando = false;
-      throw `*[❗] Error al descargar el video/canción desde las APIs disponibles.`;
+      throw `${tradutor.texto5}`;
     }
   } catch (error) {
     enviando = false;
-    throw `*[❗] Error: ${error.message || 'Ocurrió un error inesperado'}.*`;
+    throw tradutor.texto6;
   }
 };
-handler.help = ['play.1', 'play.2'].map((v) => v + ' <texto>');
-handler.tags = ['downloader'];
 handler.command = ['play.1', 'play.2'];
 export default handler;
 
+///////////////////////////////////////
 
 /*import fetch from 'node-fetch';
 import yts from 'yt-search';
